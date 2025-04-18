@@ -12,7 +12,7 @@ st.set_page_config(page_title="TSI Candidate Portal", layout="centered")
 
 # Setup Google Sheets
 def setup_google_sheets():
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    scope = [os.getenv('GSPREAD_SCOPES_FEEDS'), os.getenv('GSPREAD_SCOPES_DRIVE')]
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
     return gspread.authorize(creds)
 
@@ -25,7 +25,7 @@ def fetch_candidate_data(email):
     return df[df["Email"].str.lower() == email.lower()]
 
 # ---- UI ----
-st.title("🎯 Welcome to TSI Candidate Portal")
+st.title("Welcome to TSI Candidate Portal")
 
 st.markdown("Please enter your registered **Email** to view your application details:")
 
@@ -36,7 +36,7 @@ if email:
         candidate_df = fetch_candidate_data(email)
         if not candidate_df.empty:
             candidate = candidate_df.iloc[0]
-            st.success(f"✅ Found candidate: {candidate['Name']}")
+            st.success(f"Found candidate: {candidate['Name']}")
             st.write("### Application Summary")
             st.markdown(f"""
                 - **Status:** {candidate['Status']}
@@ -44,9 +44,9 @@ if email:
                 - **Skills:** {candidate['Skills']}
                 - **Experience:** {candidate['Experience']} years
             """)
-            st.markdown("🧠 We’ll notify you as your application progresses!")
+            st.markdown("We’ll notify you as your application progresses!")
         else:
-            st.warning("❗ No candidate found with that email.")
+            st.warning("No candidate found with that email.")
     except Exception as e:
         st.error(f"Error: {str(e)}")
 
